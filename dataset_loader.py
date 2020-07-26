@@ -2,14 +2,14 @@ from PIL import Image
 import os
 import numpy as np
 import random
-import json
 
 def load_data(dir_path):
     train_data = []
     train_label = []
     train_dir_path = os.path.join(dir_path, "bounding_box_train")
     train_files = os.listdir(train_dir_path)
-    train_files.remove(".DS_Store")
+    if ".DS_Store" in train_files:
+        train_files.remove(".DS_Store")
     train_files.sort(key=lambda x: int(x[0:4]))
     for file in train_files:
         train_label.append(file.split("_")[0])
@@ -23,7 +23,8 @@ def load_data(dir_path):
     test_label = []
     test_dir_path = os.path.join(dir_path, "bounding_box_test")
     test_files = os.listdir(test_dir_path)
-    test_files.remove(".DS_Store")
+    if ".DS_Store" in test_files:
+        test_files.remove(".DS_Store")
     for obj in list(test_files):
         if "-1" in str(obj) or "0000" in str(obj):
             test_files.remove(obj)
@@ -35,7 +36,23 @@ def load_data(dir_path):
             image = Image.open(file)
             image = np.array(image)
             test_data.append(image)
-    return train_data, train_label, test_data, test_label
+
+    query_data = []
+    query_label = []
+    query_dir_path = os.path.join(dir_path, "query")
+    query_files = os.listdir(query_dir_path)
+    if ".DS_Store" in query_files:
+        query_files.remove(".DS_Store")
+    query_files.sort(key=lambda x: int(x[0:4]))
+    for file in query_files:
+        query_label.append(file.split("_")[0])
+        if os.path.splitext(file)[1] == ".jpg":
+            file = os.path.join(query_dir_path, file)
+            image = Image.open(file)
+            image = np.array(image)
+            query_data.append(image)
+
+    return train_data, train_label, test_data, test_label, query_data, query_label
 
 
 def generate_set(data, label, length):
@@ -76,4 +93,18 @@ def generate_set(data, label, length):
             label_set.append(0)
 
     return np.array(data_set), np.array(label_set)
+
+
+def generate_id_num(test_labels):
+    id_num = {}
+    id = test_labels[0]
+    num = 0
+    for i in range(len(test_labels)):
+        if test_labels[i] == id:
+            num = num + 1
+        else:
+            id_num[id] = num
+            num = 1
+            id = test_labels[i]
+    return id_num
 
