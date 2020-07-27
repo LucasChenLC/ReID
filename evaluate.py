@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
+
 def evaluate_model_mAP(model,query,query_labels,test_data,test_labels,id_num, rank=100,query_num=1000):
     mAP = 0
     for i in range(query_num):
@@ -15,8 +16,8 @@ def evaluate_model_mAP(model,query,query_labels,test_data,test_labels,id_num, ra
         tf_id = query_labels[i]
         tf_num = 0
         for j in range(rank):
-
             match = np.argmax(predictions)
+            del predictions[match]
             if test_labels[match] == tf_id:
                 tf_num = tf_num+1
             precision = tf_num / (j+1)
