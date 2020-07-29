@@ -1,12 +1,13 @@
 import tensorflow as tf
 import numpy as np
-
+import random
 
 def evaluate_model_mAP(model,query,query_labels,test_data,test_labels,id_num, rank=100,query_num=1000):
     mAP = 0
     for i in range(query_num):
         predictions = []
-        for image in test_data:
+        for _ in range(100):
+            image = test_data[random.randint(0,test_data.shape[0])]
             data = np.append(query[i], image, axis=2)
             data = np.expand_dims(data, axis=0)
             predict = model.predict(data)
